@@ -2,58 +2,133 @@
 //  ContentView.swift
 //  WeatherApp
 //
-//  Created by Parsoya, Saritha on 10/12/23.
-//	URL to get current weather: https://openweathermap.org/current
+//  Created by Saritha Parsoya on 8/3/24.
+//
 
 import SwiftUI
-import UIKit
 
 struct ContentView: View {
-	@State private var cityName: String = ""
     var body: some View {
-        VStack {
-            Text("Hello")
-			Text("Please enter your city name or pincode to get today's weather report")
-			TextField("City name", text: $cityName)
-				.padding()
-				.border(Color.black)
-			Button {
-				print("Submit")
-				getData()
-			} label: {
-				Text("Submit")
-			}
-			.contentShape(Rectangle())
-			.padding()
-			.border(Color.black)
+        ZStack {
+            BackgroundView(topColor: .blue, bottomColor: Color("lightBlue"))
+            VStack() {
+                CityTextView(title: "Cupertino, CA")
+                
+                CityWeatherView(weatherImage: "cloud.sun.fill", temperature: 76)
+                
+                HStack(spacing: 10) {
+                    WeatherDayView(dayOfWeek: "TUE", 
+                                   weatherImage: "cloud.sun.fill",
+                                   temperature: 76)
+                    WeatherDayView(dayOfWeek: "WED", 
+                                   weatherImage: "sun.max.fill",
+                                   temperature: 88)
+                    WeatherDayView(dayOfWeek: "THU", 
+                                   weatherImage: "wind.snow",
+                                   temperature: 55)
+                    WeatherDayView(dayOfWeek: "FRI", 
+                                   weatherImage: "sunset.fill",
+                                   temperature: 60)
+                    WeatherDayView(dayOfWeek: "SAT", 
+                                   weatherImage: "snow",
+                                   temperature: 25)
+                }
+                Spacer()
+                
+                WeatherButton(title: "Change Day Time")
+                Spacer()
+            }
         }
-        .padding()
     }
-}
-
-// How to get data from API using Swift
-func getData() {
-	let milpitasUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=37.4332273&lon=-121.8989248&appid=6dfce9f3ade7a3ca0c6570595c2eb351"
-	let session = URLSession.shared
-	guard let serviceUrl = URL(string: milpitasUrl) else { return }
-	
-	let task = session.dataTask(with: serviceUrl) { (serviceData, serviceResponse, error) in
-		
-		if error == nil {
-			let httpResponse = serviceResponse as! HTTPURLResponse
-			if (httpResponse.statusCode == 200) {
-	
-				// Data Parse
-				let jsonData = try? JSONSerialization.jsonObject(with: serviceData!, options: .mutableContainers)
-				let result = jsonData as! Dictionary<String, Any>
-				print(result)
-				print("id = \(result["id"]!)")
-			}
-		}
-	}
-	task.resume()
 }
 
 #Preview {
     ContentView()
+}
+
+struct WeatherDayView: View {
+    
+    var dayOfWeek: String
+    var weatherImage: String
+    var temperature: Int
+    
+    var body: some View {
+        VStack {
+            Text(dayOfWeek)
+                .font(.system(size: 16, weight: .medium, design: .default))
+                .foregroundColor(.white)
+            Image(systemName: weatherImage)
+                .renderingMode(.original)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 40, height: 40)
+            Text("\(temperature)°")
+                .font(.system(size: 16, weight: .medium, design: .default))
+                .foregroundColor(.white)
+        }
+    }
+}
+
+struct BackgroundView: View {
+    var topColor: Color
+    var bottomColor: Color
+    
+    var body: some View {
+        LinearGradient(gradient: Gradient(colors: [topColor, bottomColor]),
+                       startPoint: .topLeading,
+                       endPoint: .bottomTrailing)
+        .edgesIgnoringSafeArea(.all)
+    }
+}
+
+struct CityTextView: View {
+    
+    var title: String
+    
+    var body: some View {
+        Text(title)
+            .frame(width: 280, height: 50)
+            .font(.system(size: 32, weight: .medium, design: .default))
+            .foregroundColor(.white)
+            .padding()
+    }
+}
+
+struct CityWeatherView: View {
+    var weatherImage: String
+    var temperature: Int
+    
+    var body: some View {
+        VStack(spacing: 10) {
+            Image(systemName: weatherImage)
+                .renderingMode(.original)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 180, height: 180)
+            Text("\(temperature)°")
+                .font(.system(size: 70, weight: .medium, design: .default))
+                .foregroundColor(.white)
+        }
+        .padding(.bottom, 40)
+    }
+}
+
+struct WeatherButton: View {
+    
+    var title: String
+    var textColor: Color? = .blue
+    var backgroundColor: Color? = Color.white
+    
+    var body: some View {
+        Button{
+            print("tapped")
+        } label: {
+            Text(title)
+                .frame(width: 280, height: 50)
+                .background(backgroundColor)
+                .foregroundColor(textColor)
+                .font(.system(size: 20, weight: .bold, design: .default))
+                .cornerRadius(10)
+        }
+    }
 }
